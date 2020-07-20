@@ -8,13 +8,35 @@ namespace BattleshipKing
     {
         public Battleship()
         {
-
+            ShipDirection = GenerateRandomDirection();
+            ShipLength = 5;
+            ShipSternX = GenerateRandomNumber();
+            ShipSternY = GenerateRandomNumber();
         }
 
-        public string BattleshipDirection { get; set; }
-        public int BattleshipLength { get; set; }
-        public Array FirstSegmentPosition { get; set; }
-        public int NumberOfHits { get; set; }
+        public string ShipDirection { get; set; }
+        public int ShipLength { get; set; }
+        public int ShipSternX { get; set; }
+        public int ShipSternY { get; set; }
+
+        public string GenerateRandomDirection()
+        {
+            int dirNum = GenerateRandomNumber();
+            if (dirNum > 4)
+            {
+                return "Horizontal";
+            } else
+            {
+                return "Vertical";
+            }
+        }
+
+        public int GenerateRandomNumber()
+        {
+            var random = new System.Random();
+            int num = random.Next(1, 11);
+            return num;
+        }
 
     }
 }

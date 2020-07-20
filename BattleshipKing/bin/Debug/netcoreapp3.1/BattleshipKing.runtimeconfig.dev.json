@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\Jeff.ACTIONTRAFFIC\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\Jeff.ACTIONTRAFFIC\\.nuget\\packages"
+    ]
+  }
+}
