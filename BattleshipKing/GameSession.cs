@@ -13,7 +13,6 @@ namespace BattleshipKing
         }
         public int DirectHits { get; set; }
         public int ShotsFired { get; set; }
-        public string[] Results { get; set; }
     }
 
  
