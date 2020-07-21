@@ -7,20 +7,26 @@ namespace BattleshipKing
         static int xPos;
         static int yPos;
         static int resultCounter = 0;
+        static int hitCounter = 0;
+        static int missCounter = 0;
         public static string[] results = new string[8];
 
         public static void Main(string[] args)
         {
             var battleship = new Battleship();
-            Console.WriteLine(battleship.ShipSternX);
-            Console.WriteLine(battleship.ShipSternY);
-            DisplayAllResults();
-            PromptUserForX();
-            PromptUserForY();
-            DetectHit(battleship, xPos, yPos);
+            for (int i = 0; i < 8; i++)
+            {
+                Console.WriteLine(battleship.ShipSternX);
+                Console.WriteLine(battleship.ShipSternY);
+                // DisplayAllResults();
+                PromptUserForX();
+                PromptUserForY();
+                DetectHit(battleship, xPos, yPos);
+
+                Console.WriteLine($"x = {xPos}, y = {yPos}");
+                Console.WriteLine($"Battleship position = {battleship.ShipSternX}, {battleship.ShipSternY}");
+            }
             
-            Console.WriteLine($"x = {xPos}, y = {yPos}");  
-            Console.WriteLine($"Battleship position = {battleship.ShipSternX}, {battleship.ShipSternY}");
         }
 
         public static void PromptUserForX()
@@ -39,14 +45,21 @@ namespace BattleshipKing
 
         public static void DetectHit(Battleship battleship, int xValue, int yValue)
         {
+            resultCounter++;
             if (xValue == battleship.ShipSternX && yValue == battleship.ShipSternY)
-            {
+            {   
                 Console.WriteLine("You hit my battleship");
+                hitCounter++;
             }
             else
             {
                 Console.WriteLine("You missed!");
+                missCounter++;
             }
+
+            Console.WriteLine($"{resultCounter} shots fired");
+            Console.WriteLine($"Hits:  {hitCounter}");
+            Console.WriteLine($"Misses:  {missCounter}");
         }
 
         public static void DisplayAllResults()
