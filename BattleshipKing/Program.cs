@@ -17,27 +17,29 @@ namespace BattleshipKing
 
             var battleship = new Battleship();
             for (int i = 0; i < 8; i++)
-            {                
+            {
+                Console.Clear();
                 Console.WriteLine("****************************************************");
-                Console.WriteLine($"Welcome to Battleship Round: {i + 1}");
+                Console.WriteLine($"Welcome to Battleship");
+                Console.WriteLine($"Round: {i + 1}");
+                Console.WriteLine("****************************************************");
+                Program.DisplayAllResults();
+
                 Console.WriteLine(battleship.ShipSternX);
                 Console.WriteLine(battleship.ShipSternY);
-                // DisplayAllResults();
+                
                 Program.PromptUserForX();
                 Program.PromptUserForY();
-                //Console.WriteLine();
+                if (Program.xPos == 0 || Program.yPos == 0)
+                {
+                    Console.WriteLine("Invalid entry.  Run program again to try again.");
+                    return;
+                }
 
-                Console.Clear();
-
+                Console.WriteLine("****************************************************");
                 Program.DetectHit(battleship, Program.xPos, Program.yPos);
                 Console.WriteLine("****************************************************");
-                Console.WriteLine();
-
-                //Console.WriteLine($"x = {Program.xPos}, y = {Program.yPos}");
-                //Console.WriteLine($"Battleship position = {battleship.ShipSternX}, {battleship.ShipSternY}");
-                Console.WriteLine("****************************************************");
-                Console.WriteLine();
-                Console.WriteLine();
+                Console.WriteLine();                
             }
             
         }
@@ -54,24 +56,36 @@ namespace BattleshipKing
             yPos = ConvertToInteger(Console.ReadLine());
         }
 
+
+
+
+
         public void DetectHit(Battleship battleship, int xValue, int yValue)
         {
             string result = "";
 
             if (xValue == battleship.ShipSternX && yValue == battleship.ShipSternY)
-            {   
-                Console.WriteLine("You hit my battleship");
-                result = "HIT!!!";
+            {
                 hitCounter++;
+                if (hitCounter == 5)
+                {
+                    Console.WriteLine("You've Sank My BattleShip!!!");
+                    result = "HIT, and SUNK!!!";
+                }
+                else
+                {
+                    Console.WriteLine("You hit my battleship");
+                    result = "HIT!!!";
+                }                
             }
             else
             {
+                missCounter++;
                 Console.WriteLine("You missed!");
                 result = "Miss :-(";
-                missCounter++;
             }
 
-            string resultText = $"{xValue}, {yValue}:  {result}";
+            string resultText = $"{resultCounter + 1}:  {xValue}, {yValue}:  {result}";
             results[resultCounter] = resultText;
 
             resultCounter++;
@@ -82,12 +96,14 @@ namespace BattleshipKing
 
         public void DisplayAllResults()
         {
-            results[0] = "Miss";
-            Console.WriteLine("Previous Results");
-
+            Console.WriteLine("****************************************************");
+            Console.WriteLine("Previous Results:");
             foreach (var result in results)
             {
-                Console.WriteLine(result);
+                if (result != null)
+                {
+                    Console.WriteLine(result);
+                }                
             }           
         }
 
