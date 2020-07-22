@@ -4,46 +4,48 @@ namespace BattleshipKing
 {
     class Program
     {        
-        static int xPos;
-        static int yPos;
-        static int resultCounter = 0;
-        static int hitCounter = 0;
-        static int missCounter = 0;
-        public static string[] results = new string[8];
+        int xPos;
+        int yPos;
+        int resultCounter = 0;
+        int hitCounter = 0;
+        int missCounter = 0;
+        public string[] results = new string[8];
 
         public static void Main(string[] args)
         {
+            var Program = new Program();
+
             var battleship = new Battleship();
             for (int i = 0; i < 8; i++)
             {
                 Console.WriteLine(battleship.ShipSternX);
                 Console.WriteLine(battleship.ShipSternY);
                 // DisplayAllResults();
-                PromptUserForX();
-                PromptUserForY();
-                DetectHit(battleship, xPos, yPos);
+                Program.PromptUserForX();
+                Program.PromptUserForY();
+                Program.DetectHit(battleship, Program.xPos, Program.yPos);
 
-                Console.WriteLine($"x = {xPos}, y = {yPos}");
+                Console.WriteLine($"x = {Program.xPos}, y = {Program.yPos}");
                 Console.WriteLine($"Battleship position = {battleship.ShipSternX}, {battleship.ShipSternY}");
             }
             
         }
 
-        public static void PromptUserForX()
+        public void PromptUserForX()
         {
             Console.WriteLine("Select X Firing Position");
             Console.WriteLine("X:  ");
             xPos = ConvertToInteger(Console.ReadLine());            
         }
 
-        public static void PromptUserForY()
+        public void PromptUserForY()
         {
             Console.WriteLine("Select Y Firing Position");
             Console.WriteLine("Y:  ");
             yPos = ConvertToInteger(Console.ReadLine());
         }
 
-        public static void DetectHit(Battleship battleship, int xValue, int yValue)
+        public void DetectHit(Battleship battleship, int xValue, int yValue)
         {
             resultCounter++;
             if (xValue == battleship.ShipSternX && yValue == battleship.ShipSternY)
@@ -62,9 +64,8 @@ namespace BattleshipKing
             Console.WriteLine($"Misses:  {missCounter}");
         }
 
-        public static void DisplayAllResults()
+        public void DisplayAllResults()
         {
-
             results[0] = "Miss";
             Console.WriteLine("Previous Results");
 
@@ -75,7 +76,7 @@ namespace BattleshipKing
         }
 
 
-        public static int ConvertToInteger(string x)
+        public int ConvertToInteger(string x)
         {
             try
             {
