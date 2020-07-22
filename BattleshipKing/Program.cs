@@ -17,48 +17,64 @@ namespace BattleshipKing
 
             var battleship = new Battleship();
             for (int i = 0; i < 8; i++)
-            {
+            {                
+                Console.WriteLine("****************************************************");
+                Console.WriteLine($"Welcome to Battleship Round: {i + 1}");
                 Console.WriteLine(battleship.ShipSternX);
                 Console.WriteLine(battleship.ShipSternY);
                 // DisplayAllResults();
                 Program.PromptUserForX();
                 Program.PromptUserForY();
-                Program.DetectHit(battleship, Program.xPos, Program.yPos);
+                //Console.WriteLine();
 
-                Console.WriteLine($"x = {Program.xPos}, y = {Program.yPos}");
-                Console.WriteLine($"Battleship position = {battleship.ShipSternX}, {battleship.ShipSternY}");
+                Console.Clear();
+
+                Program.DetectHit(battleship, Program.xPos, Program.yPos);
+                Console.WriteLine("****************************************************");
+                Console.WriteLine();
+
+                //Console.WriteLine($"x = {Program.xPos}, y = {Program.yPos}");
+                //Console.WriteLine($"Battleship position = {battleship.ShipSternX}, {battleship.ShipSternY}");
+                Console.WriteLine("****************************************************");
+                Console.WriteLine();
+                Console.WriteLine();
             }
             
         }
 
         public void PromptUserForX()
         {
-            Console.WriteLine("Select X Firing Position");
-            Console.WriteLine("X:  ");
+            Console.WriteLine("Select Firing Position for -X-:  ");
             xPos = ConvertToInteger(Console.ReadLine());            
         }
 
         public void PromptUserForY()
         {
-            Console.WriteLine("Select Y Firing Position");
-            Console.WriteLine("Y:  ");
+            Console.WriteLine("Select Firing Position for -Y-:  ");
             yPos = ConvertToInteger(Console.ReadLine());
         }
 
         public void DetectHit(Battleship battleship, int xValue, int yValue)
         {
-            resultCounter++;
+            string result = "";
+
             if (xValue == battleship.ShipSternX && yValue == battleship.ShipSternY)
             {   
                 Console.WriteLine("You hit my battleship");
+                result = "HIT!!!";
                 hitCounter++;
             }
             else
             {
                 Console.WriteLine("You missed!");
+                result = "Miss :-(";
                 missCounter++;
             }
 
+            string resultText = $"{xValue}, {yValue}:  {result}";
+            results[resultCounter] = resultText;
+
+            resultCounter++;
             Console.WriteLine($"{resultCounter} shots fired");
             Console.WriteLine($"Hits:  {hitCounter}");
             Console.WriteLine($"Misses:  {missCounter}");
