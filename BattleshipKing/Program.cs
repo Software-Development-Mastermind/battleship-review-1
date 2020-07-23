@@ -11,14 +11,14 @@ namespace BattleshipKing
         int missCounter = 0;
         public string[] results = new string[8];
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             var Program = new Program();
 
             var battleship = new Battleship();
             for (int i = 0; i < 8; i++)
             {
-                Console.Clear();
+                //Console.Clear();
                 Console.WriteLine("****************************************************");
                 Console.WriteLine($"Welcome to Battleship");
                 Console.WriteLine($"Round: {i + 1}");
@@ -62,7 +62,7 @@ namespace BattleshipKing
 
         public void DetectHit(Battleship battleship, int xValue, int yValue)
         {
-            string result = "";
+            string result;
 
             if (xValue == battleship.ShipSternX && yValue == battleship.ShipSternY)
             {
