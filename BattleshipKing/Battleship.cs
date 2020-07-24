@@ -9,11 +9,10 @@ namespace BattleshipKing
         public Battleship()
         {
             ShipDirection = GenerateRandomDirection();
-            Console.WriteLine($"Ship Direction: {ShipDirection}");
             ShipLength = 5;
             ShipSternX = GenerateRandomNumber();
             ShipSternY = GenerateRandomNumber();
-            FillPositionArray();
+            //FillPositionArray();
         }
 
         public string ShipDirection { get; set; }
@@ -24,15 +23,12 @@ namespace BattleshipKing
 
         public string GenerateRandomDirection()
         {
-            int dirNum = GenerateRandomNumber();
-            // comparing less than, and greater than 5
-            // to be able to reuse the GenerateRandonNumber() method
-            if (dirNum > 4)
+            if (GenerateRandomNumber() > 5)
             {
-                return "Horizontal";
+                return "EastWest";
             } else
             {
-                return "Vertical";
+                return "NorthSouth";
             }
         }
 
@@ -45,66 +41,17 @@ namespace BattleshipKing
 
         public void FillPositionArray()
         {
-            ShipSpan = new int[2, 5];
-            switch(ShipDirection)
+            ShipSpan = new int[5, 2];
+
+            if (ShipSternX > 5) ShipSternX = 5;
+            if (ShipSternY > 5) ShipSternY = 5;
+
+            for (int i = 0; i <= 4 ; i++)
             {
-                case "Horizontal":
-                    // Spread array by incrementing xPos value
-                    // if ShipSternX is greater than 5, change direction (or subtract)
-                    // Because the ship will be 5 in length and cannot extend past
-                    // the grid boundaries.
-                    if (ShipSternX <= 5)
-                    {
-                        // Fill array
-                        for (int i = 0; i <= 1; i++)
-                        {
-                            ShipSpan[i, 0] = ShipSternX;
-
-                            for (int k = 0; k <= 3; k++)
-                            {
-                                ShipSpan[i, k + 1] = ShipSternY + k;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Change directions, or just manually assign 5
-                        Console.WriteLine("Horizontal, ShipsternX > 5");
-                    }
-
-                    break;
-
-                case "Vertical":
-                    // Spread array by incrementing yPos value
-                    // If ShipSternY is greater than 5, change direction (or subtract)
-                    // Because the ship will be 5 in length and cannot extend past
-                    // the grid boundaries.
-                    if (ShipSternY <= 5)
-                    {
-                        // Fill array
-                        Console.WriteLine("Vertical, ShipsternY <= 5");
-                        //for (int i = 0; i < 5; i++)
-                        //{
-                        //    for (int k = 0; k < 3; k++)
-                        //    {
-                        //        ShipSpan[i, k] = ShipSternX + k;
-                        //        ShipSpan[i, k + 1] = ShipSternY;
-                        //        Console.WriteLine(ShipSpan);
-                        //    }
-                        //}
-                    }
-                    else
-                    {
-                        // Change directions, or just manually assign 5
-                        Console.WriteLine("Vertical, ShipsternY > 5");
-                    }
-
-                    break;
-
+                ShipSpan[i, 0] = ShipDirection == "EastWest" ? ShipSternX : ShipSternX + i;
+                ShipSpan[i, 1] = ShipDirection == "NorthSouth" ? ShipSternY : ShipSternY + i;
+                Console.WriteLine($"{ShipSpan[i, 0]}, {ShipSpan[i, 1]}");
             }
-
-            
-
         }
 
     }
