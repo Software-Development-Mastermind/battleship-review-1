@@ -5,40 +5,41 @@ namespace BattleshipKing
 {
     class Program
     {        
-        int xPos;
-        int yPos;
-        int resultCounter = 0;
-        int hitCounter = 0;
-        int missCounter = 0;
-        string[] results = new string[8];
-
-        // Still need to develop this to stop the ability
-        // to use the same coordinates twice.
-        // Need to determine how to compare, then block
-        int[,] userShots = new int[8, 2];
+        private int _xPos;
+        private int _yPos;
+        private int _resultCounter = 0;
+        private int _hitCounter = 0;
+        private int _missCounter = 0;
+        private readonly string[] _results = new string[8];
+        private readonly int[,] _userShots = new int[8, 2];
 
         public static void Main()
         {
             var Program = new Program();
+            Program.StartGame();
+        }
+
+        public void StartGame()
+        {
             var battleShip = new Battleship();
 
             for (int i = 0; i <= 7; i++)
             {
+                // Temporary display battleShip location
+                // Delete before deployment
                 battleShip.FillPositionArray();
-                Program.DisplayHeader(i);
-                Program.DisplayAllResults();
 
-                Program.PromptUserForX();
-                Program.PromptUserForY();
+                DisplayHeader(i);
+                DisplayResults();
+                GetUserXY();
 
                 Console.WriteLine("****************************************************");
-                Program.DetectHit(battleShip, Program.xPos, Program.yPos);
+                DetectHit(battleShip);
                 Console.WriteLine("****************************************************");
                 Console.WriteLine();
 
-                Program.PauseGame();
+                PauseGame();
             }
-            
         }
 
         public void PauseGame()
@@ -60,14 +61,41 @@ namespace BattleshipKing
             Console.WriteLine();
         }
 
+        public void GetUserXY()
+        {
+            do
+            {
+                PromptUserForX();
+                PromptUserForY();
+
+            } while (DetectDuplicate());
+        }
+
+        public bool DetectDuplicate()
+        {
+            bool duplicate = false;
+            for (int i = 0; i < _userShots.GetLength(0); i++)
+            {
+                if (_xPos == _userShots[i, 0] && _yPos == _userShots[i, 1])
+                {
+                    duplicate = true;
+                    Console.WriteLine("Cannot use duplicate coordinates");
+                    Console.WriteLine("Press Any Key To Continue...");
+                    Console.ReadKey();
+                    break;
+                }
+            }
+            return duplicate;
+        }
+
         public void PromptUserForX()
         {
             bool valid = false;
             while (!valid)
             {
                 Console.WriteLine("Enter Value for X (1-10):");
-                xPos = ConvertToInteger(Console.ReadLine());
-                valid = xPos > 0;
+                _xPos = ConvertToInteger(Console.ReadLine());
+                valid = _xPos > 0;
             }            
         }
 
@@ -77,23 +105,23 @@ namespace BattleshipKing
             while (!valid)
             {
                 Console.WriteLine("Enter Value for Y (1-10):");
-                yPos = ConvertToInteger(Console.ReadLine());
-                valid = yPos > 0;
+                _yPos = ConvertToInteger(Console.ReadLine());
+                valid = _yPos > 0;
             }            
-        }
+        }               
 
-        public void DetectHit(Battleship battleShip, int xValue, int yValue)
+        public void DetectHit(Battleship battleShip)
         {
             string result = "";
             bool directHit = false;
 
             for (int i = 0; i < battleShip.ShipSpan.GetLength(0); i++)
             {
-                if (xValue == battleShip.ShipSpan[i, 0] && yValue == battleShip.ShipSpan[i, 1])
+                if (_xPos == battleShip.ShipSpan[i, 0] && _yPos == battleShip.ShipSpan[i, 1])
                 {
-                    hitCounter++;
+                    _hitCounter++;
                     directHit = true;
-                    if (hitCounter == 5)
+                    if (_hitCounter == 5)
                     {                        
                         result = "SUNK!";
                         break;
@@ -101,43 +129,30 @@ namespace BattleshipKing
                     else
                     {
                         result = "HIT!";
+                        break;
                     }
-                    break;
                 }
             }
             
             if (!directHit)
             {
-                missCounter++;
+                _missCounter++;
                 result = "Miss!";
             }
             
-            resultCounter++;
+            _resultCounter++;
 
-            DisplayGameStats(
-                    directHit,
-                    xValue,
-                    yValue,
-                    result,
-                    resultCounter,
-                    hitCounter,
-                    missCounter,
-                    battleShip
-                );
+            DisplayGameStats(directHit, result, battleShip);
         }
      
-        public void DisplayGameStats(bool directHit, int xValue, int yValue, string result, int resultCounter, int hitCounter, int missCounter, Battleship battleShip)
+        public void DisplayGameStats(bool directHit, string result, Battleship battleShip)
         {
-            string resultText = $"{resultCounter}:  {result}\t(X={xValue},\tY={yValue})";
-            results[resultCounter - 1] = resultText;
+            string resultText = $"{_resultCounter}:  {result}\t(X={_xPos},\tY={_yPos})";
+            _results[_resultCounter - 1] = resultText;
+            _userShots[_resultCounter - 1, 0] = _xPos;
+            _userShots[_resultCounter - 1, 1] = _yPos;
 
-            var gameSession = new GameSession();
-
-            // Add user shots to user array
-            // Use to compare and make sure
-            // the user doesn't use the same coordinates
-            userShots[resultCounter - 1, 0] = xValue;
-            userShots[resultCounter - 1, 1] = yValue;
+            var reactions = new RandomReaction();            
 
             Console.Clear();
 
@@ -145,7 +160,7 @@ namespace BattleshipKing
             {
                 case "Miss!":
                     Console.WriteLine();
-                    Console.WriteLine(gameSession.ShotReactions[battleShip.GenerateRandomNumber() - 1]);
+                    Console.WriteLine(reactions.ShotReactions[battleShip.GenerateRandomNumber() - 1]);
                     Console.WriteLine();
                     break;
                 case "HIT!":
@@ -163,18 +178,19 @@ namespace BattleshipKing
 
             if (directHit) Console.WriteLine("Nice Shot!");
 
-            string shotOrShots = resultCounter > 1 ? "shots" : "shot";
-            string hitOrHits = hitCounter > 1 ? "hits" : "hit";
-            string missOrMisses = missCounter > 1 ? "misses" : "miss";
-            Console.WriteLine($"{resultCounter} {shotOrShots} fired");
+            string shotOrShots = _resultCounter > 1 ? "shots" : "shot";
+            string hitOrHits = _hitCounter > 1 ? "hits" : "hit";
+            string missOrMisses = _missCounter > 1 ? "misses" : "miss";
+
+            Console.WriteLine($"{_resultCounter} {shotOrShots} fired");
             Console.WriteLine("-----------");
-            Console.WriteLine($"\t-{hitCounter} {hitOrHits}");
-            Console.WriteLine($"\t-{missCounter} {missOrMisses}");
+            Console.WriteLine($"\t-{_hitCounter} {hitOrHits}");
+            Console.WriteLine($"\t-{_missCounter} {missOrMisses}");
         }
 
         public void EndGame(Battleship battleShip)
         {
-            DisplayAllResults();
+            DisplayResults();
             Console.WriteLine("Game Over");
             Console.WriteLine("Press Any Key to Exit");
             Grid10x10(battleShip);
@@ -203,21 +219,18 @@ namespace BattleshipKing
                     {
                         Console.Write($"-");
                     }
-                    
-
-
                 }
                 Console.WriteLine();
             }
         }
 
-        public void DisplayAllResults()
+        public void DisplayResults()
         {            
-            foreach (var result in results)
+            foreach (var result in _results)
             {
                 if (result != null)
                 {
-                    if (result == results[0])
+                    if (result == _results[0])
                     {
                         Console.WriteLine("****************************************************");
                         Console.WriteLine("Your Previous Results:");
@@ -227,10 +240,9 @@ namespace BattleshipKing
                     Console.WriteLine(result);                   
                 }
             }
-            if (results[0] != null) Console.WriteLine();
+            if (_results[0] != null) Console.WriteLine();
             Console.WriteLine("****************************************************");
         }
-
 
         public int ConvertToInteger(string x)
         {

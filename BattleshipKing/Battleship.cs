@@ -12,7 +12,7 @@ namespace BattleshipKing
             ShipLength = 5;
             ShipSternX = GenerateRandomNumber();
             ShipSternY = GenerateRandomNumber();
-            //FillPositionArray();
+            ShipSpan = new int[5, 2];
         }
 
         public string ShipDirection { get; set; }
@@ -41,10 +41,10 @@ namespace BattleshipKing
 
         public void FillPositionArray()
         {
-            ShipSpan = new int[5, 2];
+            //ShipSpan = new int[5, 2];
 
-            if (ShipSternX > 5) ShipSternX = 5;
-            if (ShipSternY > 5) ShipSternY = 5;
+            if (ShipSternX > 5) ShipSternX = 3;
+            if (ShipSternY > 5) ShipSternY = 3;
 
             for (int i = 0; i <= 4 ; i++)
             {

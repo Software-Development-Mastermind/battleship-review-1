@@ -4,16 +4,12 @@ using System.Text;
 
 namespace BattleshipKing
 {
-    class GameSession
+    class RandomReaction
     {
-        public GameSession()
+        public RandomReaction()
         {
-            //DirectHits = 0;
-            //ShotsFired = 0;
             FillReactions();
         }
-        //public int DirectHits { get; set; }
-        //public int ShotsFired { get; set; }
         public string[] ShotReactions = new string[10];
 
 
