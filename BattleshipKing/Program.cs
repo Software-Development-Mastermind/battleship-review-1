@@ -82,6 +82,8 @@ namespace BattleshipKing
                     Console.WriteLine("Cannot use duplicate coordinates");
                     Console.WriteLine("Press Any Key To Continue...");
                     Console.ReadKey();
+                    //ClearLastLine();
+                    ClearLines(6);
                     break;
                 }
             }
@@ -96,6 +98,7 @@ namespace BattleshipKing
                 Console.WriteLine("Enter Value for X (1-10):");
                 _xPos = ConvertToInteger(Console.ReadLine());
                 valid = _xPos > 0;
+                if (!valid) ClearLines(2);
             }            
         }
 
@@ -107,6 +110,7 @@ namespace BattleshipKing
                 Console.WriteLine("Enter Value for Y (1-10):");
                 _yPos = ConvertToInteger(Console.ReadLine());
                 valid = _yPos > 0;
+                if (!valid) ClearLines(2);
             }            
         }               
 
@@ -254,6 +258,23 @@ namespace BattleshipKing
             {
                 return 0;
             }
-        }        
+        }
+
+        public static void ClearLastLine()
+        {
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.Write(new string(' ', Console.BufferWidth));
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+        }
+
+        public static void ClearLines(int lines)
+        {
+            for (int i = 1; i <= lines; i++)
+            {
+                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.Write(new string(' ', Console.WindowWidth));
+                Console.SetCursorPosition(0, Console.CursorTop - (Console.WindowWidth >= Console.BufferWidth ? 1 : 0));
+            }
+        }
     }
 }
