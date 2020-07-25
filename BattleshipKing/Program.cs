@@ -227,11 +227,7 @@ namespace BattleshipKing
                     catch (Exception)
                     {
                         if (!shipSegment) Console.Write("- ");
-                        //shipSegment = false;
                     }
-
-                    //string displayText = shipSegment ? "X " : "- ";
-                    //Console.Write(displayText); 
                 }
                 Console.WriteLine();
             }
