@@ -4,7 +4,7 @@ using System.Runtime.InteropServices.ComTypes;
 namespace BattleshipKing
 {
     class Program
-    {        
+    {
         private int _xPos;
         private int _yPos;
         private int _resultCounter = 0;
@@ -21,13 +21,14 @@ namespace BattleshipKing
 
         public void StartGame()
         {
-            var battleShip = new Battleship();
+            var battleShip = new Battleship();            
 
             for (int i = 0; i <= 7; i++)
             {
                 // Temporary display battleShip location
                 // Delete before deployment
                 battleShip.FillPositionArray();
+                Grid10x10(battleShip);
 
                 DisplayHeader(i);
                 DisplayResults();
@@ -82,7 +83,6 @@ namespace BattleshipKing
                     Console.WriteLine("Cannot use duplicate coordinates");
                     Console.WriteLine("Press Any Key To Continue...");
                     Console.ReadKey();
-                    //ClearLastLine();
                     ClearLines(6);
                     break;
                 }
@@ -99,7 +99,7 @@ namespace BattleshipKing
                 _xPos = ConvertToInteger(Console.ReadLine());
                 valid = _xPos > 0;
                 if (!valid) ClearLines(2);
-            }            
+            }
         }
 
         public void PromptUserForY()
@@ -111,8 +111,8 @@ namespace BattleshipKing
                 _yPos = ConvertToInteger(Console.ReadLine());
                 valid = _yPos > 0;
                 if (!valid) ClearLines(2);
-            }            
-        }               
+            }
+        }
 
         public void DetectHit(Battleship battleShip)
         {
@@ -126,7 +126,7 @@ namespace BattleshipKing
                     _hitCounter++;
                     directHit = true;
                     if (_hitCounter == 5)
-                    {                        
+                    {
                         result = "SUNK!";
                         break;
                     }
@@ -137,18 +137,18 @@ namespace BattleshipKing
                     }
                 }
             }
-            
+
             if (!directHit)
             {
                 _missCounter++;
                 result = "Miss!";
             }
-            
+
             _resultCounter++;
 
             DisplayGameStats(directHit, result, battleShip);
         }
-     
+
         public void DisplayGameStats(bool directHit, string result, Battleship battleShip)
         {
             string resultText = $"{_resultCounter}:  {result}\t(X={_xPos},\tY={_yPos})";
@@ -156,7 +156,7 @@ namespace BattleshipKing
             _userShots[_resultCounter - 1, 0] = _xPos;
             _userShots[_resultCounter - 1, 1] = _yPos;
 
-            var reactions = new RandomReaction();            
+            var reactions = new RandomReaction();
 
             Console.Clear();
 
@@ -204,24 +204,26 @@ namespace BattleshipKing
 
         public void Grid10x10(Battleship battleShip)
         {
-            for (int i = 0; i <= 9; i++)
+            for (int i = 1; i <= 10; i++)
             {
-                for (int k = 0; k <= 9; k++)
+                for (int k = 1; k <= 10; k++)
                 {
-                    if (i <= 4)
+                    try
                     {
-                        if (battleShip.ShipSpan[i, 0] == i)
+                        for (int item = 0; item <= battleShip.ShipSpan.GetLength(0); item++)
                         {
-                            if (battleShip.ShipSpan[i, 1] == k)
+                            if (battleShip.ShipSpan[item, 0] == i)
                             {
-                                Console.Write("X");
-                                continue;
+                                if (battleShip.ShipSpan[item, 1] == k)
+                                {
+                                    Console.Write("X ");
+                                }
                             }
-                        }
+                        }                        
                     }
-                    else 
+                    catch (Exception)
                     {
-                        Console.Write($"-");
+                        Console.Write("- ");
                     }
                 }
                 Console.WriteLine();
@@ -229,7 +231,7 @@ namespace BattleshipKing
         }
 
         public void DisplayResults()
-        {            
+        {
             foreach (var result in _results)
             {
                 if (result != null)
@@ -241,7 +243,7 @@ namespace BattleshipKing
                         Console.WriteLine();
                     }
 
-                    Console.WriteLine(result);                   
+                    Console.WriteLine(result);
                 }
             }
             if (_results[0] != null) Console.WriteLine();
@@ -258,13 +260,6 @@ namespace BattleshipKing
             {
                 return 0;
             }
-        }
-
-        public static void ClearLastLine()
-        {
-            Console.SetCursorPosition(0, Console.CursorTop - 1);
-            Console.Write(new string(' ', Console.BufferWidth));
-            Console.SetCursorPosition(0, Console.CursorTop - 1);
         }
 
         public static void ClearLines(int lines)
