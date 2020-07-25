@@ -10,3 +10,4 @@ C:\Users\Jeff\Documents\CSharpProjects\BattleshipKing\BattleshipKing\obj\Debug\n
 C:\Users\Jeff\Documents\CSharpProjects\BattleshipKing\BattleshipKing\obj\Debug\netcoreapp3.1\BattleshipKing.dll
 C:\Users\Jeff\Documents\CSharpProjects\BattleshipKing\BattleshipKing\obj\Debug\netcoreapp3.1\BattleshipKing.pdb
 C:\Users\Jeff\Documents\CSharpProjects\BattleshipKing\BattleshipKing\obj\Debug\netcoreapp3.1\BattleshipKing.genruntimeconfig.cache
+C:\Users\Jeff\Documents\CSharpProjects\BattleshipKing\BattleshipKing\obj\Debug\netcoreapp3.1\BattleshipKing.csprojAssemblyReference.cache

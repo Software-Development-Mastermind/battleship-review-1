@@ -21,7 +21,7 @@ namespace BattleshipKing
 
         public void StartGame()
         {
-            var battleShip = new Battleship();            
+            var battleShip = new Battleship();
 
             for (int i = 0; i <= 7; i++)
             {
@@ -204,10 +204,12 @@ namespace BattleshipKing
 
         public void Grid10x10(Battleship battleShip)
         {
+            
             for (int i = 1; i <= 10; i++)
             {
                 for (int k = 1; k <= 10; k++)
                 {
+                    bool shipSegment = false;
                     try
                     {
                         for (int item = 0; item <= battleShip.ShipSpan.GetLength(0); item++)
@@ -216,15 +218,20 @@ namespace BattleshipKing
                             {
                                 if (battleShip.ShipSpan[item, 1] == k)
                                 {
+                                    shipSegment = true;
                                     Console.Write("X ");
                                 }
                             }
-                        }                        
+                        }
                     }
                     catch (Exception)
                     {
-                        Console.Write("- ");
+                        if (!shipSegment) Console.Write("- ");
+                        //shipSegment = false;
                     }
+
+                    //string displayText = shipSegment ? "X " : "- ";
+                    //Console.Write(displayText); 
                 }
                 Console.WriteLine();
             }
