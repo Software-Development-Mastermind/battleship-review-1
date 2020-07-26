@@ -4,14 +4,16 @@ using System.Runtime.InteropServices.ComTypes;
 namespace BattleshipKing
 {
     class Program
-    {
-        private int _xPos;
-        private int _yPos;
+    {        
+        private int _xPosition;
+        private int _yPosition;
         private int _resultCounter = 0;
         private int _hitCounter = 0;
         private int _missCounter = 0;
-        private readonly string[] _results = new string[8];
-        private readonly int[,] _userShots = new int[8, 2];
+        private bool _isShipRevealed = false;
+        private readonly int _numberOfRounds = 8;
+        private readonly string[] _resultsToDisplay = new string[8];
+        private readonly int[,] _shotsFiredByUser = new int[8, 2];
 
         public static void Main()
         {
@@ -19,23 +21,28 @@ namespace BattleshipKing
             Program.StartGame();
         }
 
+        public bool SetShipVisibility()
+        {
+            Console.WriteLine("Reveal Battlefield?");
+            return Console.ReadLine() == "y";
+        }
+
         public void StartGame()
         {
             var battleShip = new Battleship();
+            _isShipRevealed = SetShipVisibility();
+            battleShip.GenerateShipCoordinates(_isShipRevealed);
 
-            for (int i = 0; i <= 7; i++)
+            for (int attackRound = 0; attackRound < _numberOfRounds ; attackRound++)
             {
-                // Temporary display battleShip location
-                // Delete before deployment
-                battleShip.FillPositionArray();
-                Grid10x10(battleShip);
+                if (_isShipRevealed) ShowBattlefield(battleShip);
 
-                DisplayHeader(i);
-                DisplayResults();
-                GetUserXY();
+                DisplayHeader(attackRound);
+                ShowAttackHistory();
+                GetAttackCoordinates();
 
                 Console.WriteLine("****************************************************");
-                DetectHit(battleShip);
+                LaunchAttack(battleShip);
                 Console.WriteLine("****************************************************");
                 Console.WriteLine();
 
@@ -45,7 +52,7 @@ namespace BattleshipKing
 
         public void PauseGame()
         {
-            Console.WriteLine("Press Any Key\nTo Continue To The Next Round...");
+            Console.WriteLine("Press Any Key\nTo Continue To The Next Attack Round...");
             Console.WriteLine();
             Console.ReadKey();
             Console.Clear();
@@ -62,25 +69,25 @@ namespace BattleshipKing
             Console.WriteLine();
         }
 
-        public void GetUserXY()
+        public void GetAttackCoordinates()
         {
             do
             {
-                PromptUserForX();
-                PromptUserForY();
+                GetUserX();
+                GetUserY();
 
-            } while (DetectDuplicate());
+            } while (IsDuplicate());
         }
 
-        public bool DetectDuplicate()
+        public bool IsDuplicate()
         {
             bool duplicate = false;
-            for (int i = 0; i < _userShots.GetLength(0); i++)
+            for (int i = 0; i < _shotsFiredByUser.GetLength(0); i++)
             {
-                if (_xPos == _userShots[i, 0] && _yPos == _userShots[i, 1])
+                if (_xPosition == _shotsFiredByUser[i, 0] && _yPosition == _shotsFiredByUser[i, 1])
                 {
                     duplicate = true;
-                    Console.WriteLine("Cannot use duplicate coordinates");
+                    Console.WriteLine("Cannot fire at the same location twice");
                     Console.WriteLine("Press Any Key To Continue...");
                     Console.ReadKey();
                     ClearLines(6);
@@ -90,81 +97,82 @@ namespace BattleshipKing
             return duplicate;
         }
 
-        public void PromptUserForX()
+        public void GetUserX()
         {
             bool valid = false;
             while (!valid)
             {
                 Console.WriteLine("Enter Value for X (1-10):");
-                _xPos = ConvertToInteger(Console.ReadLine());
-                valid = _xPos > 0;
+                _xPosition = ConvertToInteger(Console.ReadLine());
+                valid = _xPosition > 0;
                 if (!valid) ClearLines(2);
             }
         }
 
-        public void PromptUserForY()
+        public void GetUserY()
         {
             bool valid = false;
             while (!valid)
             {
                 Console.WriteLine("Enter Value for Y (1-10):");
-                _yPos = ConvertToInteger(Console.ReadLine());
-                valid = _yPos > 0;
+                _yPosition = ConvertToInteger(Console.ReadLine());
+                valid = _yPosition > 0;
                 if (!valid) ClearLines(2);
             }
         }
 
-        public void DetectHit(Battleship battleShip)
+        public void LaunchAttack(Battleship battleShip)
         {
-            string result = "";
-            bool directHit = false;
+            string attackResult = "";
+            bool isDirectHit = false;
 
-            for (int i = 0; i < battleShip.ShipSpan.GetLength(0); i++)
+            for (int i = 0; i < battleShip.ShipCoordinates.GetLength(0); i++)
             {
-                if (_xPos == battleShip.ShipSpan[i, 0] && _yPos == battleShip.ShipSpan[i, 1])
+                if (_xPosition == battleShip.ShipCoordinates[i, 0] && _yPosition == battleShip.ShipCoordinates[i, 1])
                 {
                     _hitCounter++;
-                    directHit = true;
+                    isDirectHit = true;
                     if (_hitCounter == 5)
                     {
-                        result = "SUNK!";
+                        attackResult = "SUNK!";
                         break;
                     }
                     else
                     {
-                        result = "HIT!";
+                        attackResult = "HIT!";
                         break;
                     }
                 }
             }
 
-            if (!directHit)
+            if (!isDirectHit)
             {
                 _missCounter++;
-                result = "Miss!";
+                attackResult = "Miss!";
             }
 
             _resultCounter++;
 
-            DisplayGameStats(directHit, result, battleShip);
+            ShowAttackResults(isDirectHit, attackResult, battleShip);
         }
 
-        public void DisplayGameStats(bool directHit, string result, Battleship battleShip)
+        public void ShowAttackResults(bool directHit, string result, Battleship battleShip)
         {
-            string resultText = $"{_resultCounter}:  {result}\t(X={_xPos},\tY={_yPos})";
-            _results[_resultCounter - 1] = resultText;
-            _userShots[_resultCounter - 1, 0] = _xPos;
-            _userShots[_resultCounter - 1, 1] = _yPos;
+            Console.Clear();
+
+            string resultText = $"{_resultCounter}:  {result}\t(X= {_xPosition},\tY= {_yPosition})";
+            _resultsToDisplay[_resultCounter - 1] = resultText;
+
+            _shotsFiredByUser[_resultCounter - 1, 0] = _xPosition;
+            _shotsFiredByUser[_resultCounter - 1, 1] = _yPosition;
 
             var reactions = new RandomReaction();
-
-            Console.Clear();
 
             switch (result)
             {
                 case "Miss!":
                     Console.WriteLine();
-                    Console.WriteLine(reactions.ShotReactions[battleShip.GenerateRandomNumber() - 1]);
+                    Console.WriteLine(reactions.ShotReactions[battleShip.GenerateRandomNumber(11) - 1]);
                     Console.WriteLine();
                     break;
                 case "HIT!":
@@ -190,66 +198,65 @@ namespace BattleshipKing
             Console.WriteLine("-----------");
             Console.WriteLine($"\t-{_hitCounter} {hitOrHits}");
             Console.WriteLine($"\t-{_missCounter} {missOrMisses}");
+
+            if (_resultCounter == 8) EndGame(battleShip);
         }
 
         public void EndGame(Battleship battleShip)
         {
-            DisplayResults();
+            ShowAttackHistory();
             Console.WriteLine("Game Over");
             Console.WriteLine("Press Any Key to Exit");
-            Grid10x10(battleShip);
+            ShowBattlefield(battleShip);
             Console.ReadKey();
             Environment.Exit(0);
         }
 
-        public void Grid10x10(Battleship battleShip)
+        public void ShowBattlefield(Battleship battleShip)
         {
-            
             for (int i = 1; i <= 10; i++)
             {
                 for (int k = 1; k <= 10; k++)
                 {
-                    bool shipSegment = false;
+                    bool isShipCoordinate = false;
                     try
                     {
-                        for (int item = 0; item <= battleShip.ShipSpan.GetLength(0); item++)
+                        for (int xValue = 0; xValue <= battleShip.ShipCoordinates.GetLength(0); xValue++)
                         {
-                            if (battleShip.ShipSpan[item, 0] == i)
+                            if (battleShip.ShipCoordinates[xValue, 0] == i)
                             {
-                                if (battleShip.ShipSpan[item, 1] == k)
+                                if (battleShip.ShipCoordinates[xValue, 1] == k)
                                 {
-                                    shipSegment = true;
-                                    Console.Write("X ");
+                                    isShipCoordinate = true;
+                                    Console.Write("O ");
                                 }
                             }
                         }
                     }
                     catch (Exception)
                     {
-                        if (!shipSegment) Console.Write("- ");
+                        if (!isShipCoordinate) Console.Write("- ");
                     }
                 }
                 Console.WriteLine();
             }
         }
 
-        public void DisplayResults()
+        public void ShowAttackHistory()
         {
-            foreach (var result in _results)
+            foreach (var result in _resultsToDisplay)
             {
                 if (result != null)
                 {
-                    if (result == _results[0])
+                    if (result == _resultsToDisplay[0])
                     {
                         Console.WriteLine("****************************************************");
-                        Console.WriteLine("Your Previous Results:");
+                        Console.WriteLine("Attack Results:");
                         Console.WriteLine();
                     }
-
-                    Console.WriteLine(result);
-                }
+                    Console.WriteLine(result);                }
             }
-            if (_results[0] != null) Console.WriteLine();
+            if (_resultsToDisplay[0] != null) Console.WriteLine();
             Console.WriteLine("****************************************************");
         }
 

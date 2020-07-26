@@ -10,20 +10,20 @@ namespace BattleshipKing
         {
             ShipDirection = GenerateRandomDirection();
             ShipLength = 5;
-            ShipSternX = GenerateRandomNumber();
-            ShipSternY = GenerateRandomNumber();
-            ShipSpan = new int[5, 2];
+            ShipSternX = GenerateRandomNumber(_ = ShipDirection == "EastWest" ? 6 : 11);
+            ShipSternY = GenerateRandomNumber(_ = ShipDirection == "NorthSouth" ? 6 : 11);
+            ShipCoordinates = new int[5, 2];
         }
 
         public string ShipDirection { get; set; }
         public int ShipLength { get; set; }
         public int ShipSternX { get; set; }
         public int ShipSternY { get; set; }
-        public int[,] ShipSpan { get; set; }
+        public int[,] ShipCoordinates { get; set; }
 
         public string GenerateRandomDirection()
         {
-            if (GenerateRandomNumber() > 5)
+            if (GenerateRandomNumber(11) > 5)
             {
                 return "EastWest";
             } else
@@ -32,25 +32,22 @@ namespace BattleshipKing
             }
         }
 
-        public int GenerateRandomNumber()
+        public int GenerateRandomNumber(int maxValue)
         {
-            var random = new System.Random();
-            int num = random.Next(1, 11);
+            var random = new Random();
+            int num = maxValue > 0 && maxValue < 11
+                ? random.Next(1, maxValue)
+                : 1;
             return num;
         }
 
-        public void FillPositionArray()
+        public void GenerateShipCoordinates(bool isRevealed)
         {
-            //ShipSpan = new int[5, 2];
-
-            if (ShipSternX > 5) ShipSternX = 3;
-            if (ShipSternY > 5) ShipSternY = 3;
-
-            for (int i = 0; i <= 4 ; i++)
+            for (int i = 0; i <= ShipLength - 1 ; i++)
             {
-                ShipSpan[i, 0] = ShipDirection == "EastWest" ? ShipSternX : ShipSternX + i;
-                ShipSpan[i, 1] = ShipDirection == "NorthSouth" ? ShipSternY : ShipSternY + i;
-                Console.WriteLine($"{ShipSpan[i, 0]}, {ShipSpan[i, 1]}");
+                ShipCoordinates[i, 0] = ShipDirection == "EastWest" ? ShipSternX : ShipSternX + i;
+                ShipCoordinates[i, 1] = ShipDirection == "NorthSouth" ? ShipSternY : ShipSternY + i;
+                if (isRevealed) Console.WriteLine($"{ShipCoordinates[i, 0]}, {ShipCoordinates[i, 1]}");                
             }
         }
 
