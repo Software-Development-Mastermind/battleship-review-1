@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace BattleshipKing
 {
@@ -9,87 +6,118 @@ namespace BattleshipKing
     {
         public BattleField()
         {
-            _resultCounter = 0;
+            GetNumberOfAttacksFromUser();
+
+            _attackCounter = 0;
             _hitCounter = 0;
             _missCounter = 0;
-            _isShipRevealed = false;
-            _isGameOver = false;
-            _numberOfRounds = 8;
-            _resultsToDisplay = new string[_numberOfRounds];
-            _shotsFiredByUser = new int[_numberOfRounds, 2];
+            _isBattleFieldRevealed = false;
+            _isBattleOver = false;
 
-            StartGame();
+            _attackResults = new string[_numberOfAttacks];
+            _attacksLaunchedByUser = new int[_numberOfAttacks, 2];
+
+            StartBattle();
         }
 
         private int _latitude;
         private int _longitude;
-        private int _resultCounter;
+        private int _attackCounter;
         private int _hitCounter;
         private int _missCounter;
-        private bool _isShipRevealed;
-        private bool _isGameOver;
-        private readonly int _numberOfRounds;
-        private readonly string[] _resultsToDisplay;
-        private readonly int[,] _shotsFiredByUser;
+        private bool _isBattleFieldRevealed;
+        private bool _isBattleOver;
+        private int _numberOfAttacks;
+        private readonly string[] _attackResults;
+        private readonly int[,] _attacksLaunchedByUser;
+        private readonly BattleShip _battleShip = new BattleShip();
 
-        public BattleShip BattleShip { get; } = new BattleShip();
-        public int Latitude { get; set; }
-        public int Longitude { get; set; }
-        public int ResultCounter { get; set; }
-        public int HitCounter { get; set; }
-        public int MissCounter { get; set; }
-        public bool IsShipRevealed { get; set; }
-        public bool IsGameOver { get; set; }
-        public int NumberOfRounds { get; }
-        public string[] ResultsToDisplay { get; }
-        public int[] ShotsFiredByUser { get; }
+        private void GetNumberOfAttacksFromUser()
+        {
+            bool valid = false;
+            while (!valid)
+            {
+                Console.WriteLine("Enter Number of Attacks (1-20):");
+                _numberOfAttacks = ConvertToInteger(Console.ReadLine());
 
-        private bool SetShipVisibility()
+                if (_numberOfAttacks > 0 && _numberOfAttacks <= 20)
+                {
+                    valid = true;
+                }
+                if (!valid) ClearLines(2);
+            }
+        }
+
+        private void StartBattle()
+        {
+            _isBattleFieldRevealed = SetBattleFieldVisibility();
+            Console.Clear();
+            _battleShip.GenerateShipCoordinates(_isBattleFieldRevealed);
+
+            for (int attack = 0; attack < _numberOfAttacks; attack++)
+            {
+                if (_isBattleFieldRevealed) ShowBattleField();
+
+                GetBattleHeader(attack);
+                GetAttackResultHistory();
+                GetAttackCoordinates();
+
+                WriteBorder();
+
+                GetAttackResults(LaunchAttack());
+
+                if (_attackCounter == _numberOfAttacks || _isBattleOver) EndBattle();
+
+                WriteBorder();
+                Write("");
+
+                GetNextAttack();
+            }
+        }
+
+        private bool SetBattleFieldVisibility()
         {
             Console.WriteLine("Reveal Battlefield?");
             return Console.ReadLine() == "y";
         }
 
-        private void StartGame()
+        private void ShowBattleField()
         {
-            _isShipRevealed = SetShipVisibility();
-            Console.Clear();
-            BattleShip.GenerateShipCoordinates(_isShipRevealed);
-
-            for (int attackRound = 0; attackRound < _numberOfRounds; attackRound++)
+            for (int i = 1; i <= 10; i++)
             {
-                if (_isShipRevealed) ShowBattlefield();
-
-                GetHeader(attackRound);
-                GetAttackResultHistory();
-                GetAttackCoordinates();
-
-                Console.WriteLine("****************************************************");
-                LaunchAttack();
-                Console.WriteLine("****************************************************");
+                for (int k = 1; k <= 10; k++)
+                {
+                    bool isShipCoordinate = false;
+                    try
+                    {
+                        for (int latitude = 0; latitude <= _battleShip.ShipCoordinates.GetLength(0); latitude++)
+                        {
+                            if (_battleShip.ShipCoordinates[latitude, 0] == i)
+                            {
+                                if (_battleShip.ShipCoordinates[latitude, 1] == k)
+                                {
+                                    isShipCoordinate = true;
+                                    Console.Write("O ");
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        if (!isShipCoordinate) Console.Write("- ");
+                    }
+                }
                 Console.WriteLine();
-
-                GetNextRound();
             }
         }
 
-        private void GetNextRound()
+        private void GetBattleHeader(int i)
         {
-            Console.WriteLine("Press Any Key\nTo Continue To The Next Attack Round...");
-            Console.WriteLine();
-            Console.ReadKey();
-            Console.Clear();
-        }
-
-        private void GetHeader(int i)
-        {
-            Console.WriteLine("****************************************************");
-            Console.WriteLine("\t -Welcome to Mean Battleship King-");
-            Console.WriteLine("   -Where the computer will hurt your feelings-");
-            Console.WriteLine("****************************************************");
-            Console.WriteLine();
-            Console.WriteLine($"\t\tRound: {i + 1} of 8");
-            Console.WriteLine();
+            WriteBorder();
+            Write("\t -Welcome to 'Mean Battleship'-");
+            Write("   -Where the computer will hurt your feelings-");
+            WriteBorder();
+            Write($"\t\tRound: {i + 1} of {_numberOfAttacks}");
         }
 
         private void GetAttackCoordinates()
@@ -100,24 +128,6 @@ namespace BattleshipKing
                 GetLongitudeFromUser();
 
             } while (IsDuplicateAttack());
-        }
-
-        private bool IsDuplicateAttack()
-        {
-            bool duplicate = false;
-            for (int i = 0; i < _shotsFiredByUser.GetLength(0); i++)
-            {
-                if (_latitude == _shotsFiredByUser[i, 0] && _longitude == _shotsFiredByUser[i, 1])
-                {
-                    duplicate = true;
-                    Console.WriteLine("Cannot fire at the same location twice");
-                    Console.WriteLine("Press Any Key To Continue...");
-                    Console.ReadKey();
-                    ClearLines(6);
-                    break;
-                }
-            }
-            return duplicate;
         }
 
         private void GetLatitudeFromUser()
@@ -144,54 +154,14 @@ namespace BattleshipKing
             }
         }
 
-        private void EndGame()
-        {
-            GetAttackResultHistory();
-            ShowBattlefield();
-            Console.WriteLine("\t\tGame Over");
-            Console.WriteLine("\tPress Any Key to Exit");
-            Console.ReadKey();
-            Environment.Exit(0);
-        }
-
-        private void ShowBattlefield()
-        {
-            for (int i = 1; i <= 10; i++)
-            {
-                for (int k = 1; k <= 10; k++)
-                {
-                    bool isShipCoordinate = false;
-                    try
-                    {
-                        for (int latitude = 0; latitude <= BattleShip.ShipCoordinates.GetLength(0); latitude++)
-                        {
-                            if (BattleShip.ShipCoordinates[latitude, 0] == i)
-                            {
-                                if (BattleShip.ShipCoordinates[latitude, 1] == k)
-                                {
-                                    isShipCoordinate = true;
-                                    Console.Write("O ");
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        if (!isShipCoordinate) Console.Write("- ");
-                    }
-                }
-                Console.WriteLine();
-            }
-        }
-
-        private void LaunchAttack()
+        private string LaunchAttack()
         {
             string attackResult = "";
             bool isDirectHit = false;
 
-            for (int i = 0; i < BattleShip.ShipCoordinates.GetLength(0); i++)
+            for (int i = 0; i < _battleShip.ShipCoordinates.GetLength(0); i++)
             {
-                if (_latitude == BattleShip.ShipCoordinates[i, 0] && _longitude == BattleShip.ShipCoordinates[i, 1])
+                if (_latitude == _battleShip.ShipCoordinates[i, 0] && _longitude == _battleShip.ShipCoordinates[i, 1])
                 {
                     _hitCounter++;
                     isDirectHit = true;
@@ -214,69 +184,98 @@ namespace BattleshipKing
                 attackResult = "Miss!";
             }
 
-            _resultCounter++;
+            _attackCounter++;
 
-            GetAttackResults(isDirectHit, attackResult);
+            return attackResult;
         }
 
-        private void GetAttackResults(bool isDirectHit, string attackResult)
+        private void GetAttackResults(string attackResult)
         {
             Console.Clear();
 
-            string resultText = $"{_resultCounter}:  {attackResult}\t(Latitude: {_latitude},\tLongitude: {_longitude})";
-            _resultsToDisplay[_resultCounter - 1] = resultText;
+            _attackResults[_attackCounter - 1] = $"{_attackCounter}:  {attackResult}\t(Latitude: {_latitude},\tLongitude: {_longitude})";
 
-            _shotsFiredByUser[_resultCounter - 1, 0] = _latitude;
-            _shotsFiredByUser[_resultCounter - 1, 1] = _longitude;
+            _attacksLaunchedByUser[_attackCounter - 1, 0] = _latitude;
+            _attacksLaunchedByUser[_attackCounter - 1, 1] = _longitude;
 
             var reactions = new RandomReaction();
 
             switch (attackResult)
             {
                 case "Miss!":
-                    Write(reactions.ShotReactions[BattleShip.GenerateRandomNumber(11) - 1]);
+                    Write(reactions.ShotReactions[_battleShip.GenerateRandomNumber(11) - 1]);
                     break;
                 case "HIT!":
                     Write("You've hit my Battleship!!!");
                     break;
                 case "SUNK!":
                     Write("You've SUNK MY BATTLESHIP!!!");
-                    _isGameOver = true;
+                    _isBattleOver = true;
                     break;
             }
 
-            if (isDirectHit) Write("Nice Shot!");
-
-            string shotOrShots = _resultCounter > 1 ? "shots" : "shot";
+            string shotOrShots = _attackCounter > 1 ? "shots" : "shot";
             string hitOrHits = _hitCounter > 1 ? "hits" : "hit";
             string missOrMisses = _missCounter > 1 ? "misses" : "miss";
 
-            Write($"{_resultCounter} {shotOrShots} fired");
-            Write("-----------");
+            Write($"{_attackCounter} {shotOrShots} fired");
+            WriteBorder();
             Write($"\t-{_hitCounter} {hitOrHits}");
             Write($"\t-{_missCounter} {missOrMisses}");
-
-            if (_resultCounter == 8 || _isGameOver) EndGame();
         }
+
+        private bool IsDuplicateAttack()
+        {
+            bool duplicateAttack = false;
+            for (int i = 0; i < _attacksLaunchedByUser.GetLength(0); i++)
+            {
+                if (_latitude == _attacksLaunchedByUser[i, 0] && _longitude == _attacksLaunchedByUser[i, 1])
+                {
+                    duplicateAttack = true;
+                    Write("Cannot fire at the same location twice\nPress Any Key To Continue...");
+                    Console.ReadKey();
+                    ClearLines(6);
+                    break;
+                }
+            }
+            return duplicateAttack;
+        }
+
         private void GetAttackResultHistory()
         {
-            foreach (var attackResult in _resultsToDisplay)
+            foreach (var attackResult in _attackResults)
             {
                 if (attackResult != null)
                 {
-                    if (attackResult == _resultsToDisplay[0])
+                    if (attackResult == _attackResults[0])
                     {
-                        Console.WriteLine("****************************************************");
-                        Console.WriteLine("Attack Results:");
-                        Console.WriteLine();
+                        WriteBorder();
+                        Write("Attack Results:");
                     }
                     Console.WriteLine(attackResult);
                 }
             }
-            if (_resultsToDisplay[0] != null) Console.WriteLine();
-            Console.WriteLine("****************************************************");
+            if (_attackResults[0] != null) Console.WriteLine();
+            WriteBorder();
         }
-        private int ConvertToInteger(string sourceValue)
+
+        private void GetNextAttack()
+        {
+            Write("Press Any Key\nTo Continue To The Next Attack...");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
+        private void EndBattle()
+        {
+            GetAttackResultHistory();
+            ShowBattleField();
+            Write("Game Over\nPress Any Key to Exit");
+            Console.ReadKey();
+            Environment.Exit(0);
+        }
+        
+        private static int ConvertToInteger(string sourceValue)
         {
             try
             {
@@ -287,6 +286,7 @@ namespace BattleshipKing
                 return 0;
             }
         }
+
         private static void ClearLines(int linesToDelete)
         {
             for (int i = 1; i <= linesToDelete; i++)
@@ -302,6 +302,11 @@ namespace BattleshipKing
             Console.WriteLine();
             Console.WriteLine(textToDisplay);
             Console.WriteLine();
+        }
+
+        private static void WriteBorder()
+        {
+            Console.WriteLine("****************************************************");
         }
     }
 }
